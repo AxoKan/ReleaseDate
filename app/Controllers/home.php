@@ -31,9 +31,10 @@ class home extends BaseController
         // Fetch user data for the current session user
         $whereUser = array('id_user' => $user_id);
         $data['user'] = $model->getWhere('user', $whereUser);
-    
+        $model->logActivity($user_id, 'Login', 'User Has Log in.');
         // Fetch all game data
-        $data['game'] = $model->tampil('game');
+        $data['game'] = $model->Join('game', 'genre','game.genre = genre.id_genre');
+        $data['genre'] = $model->tampil('genre');
     
         // Load views with the data
         echo view('header', $data);
@@ -73,13 +74,16 @@ class home extends BaseController
                     session()->set('user', $cek->username);
                     session()->set('id_user', $cek->id_user);
                     session()->set('Level', $cek->Level);
-                    $model->logActivity($user_id, 'Login', 'User Has Log in.');
-                    return redirect()->to('dashboard');
+                    // Redirect based on the Level
+            if ($cek->Level == 'admin') {
+                return redirect()->to('dashboard'); // Admin dashboard
+            } elseif ($cek->Level == 'user') {
+                return redirect()->to('dashboard1'); // User dashboard
                 } else {
                     return redirect()->to('login');
                 }
     }
-	
+}
 	public function setting()
            {
             $userLevel = session()->get('Level');
@@ -166,7 +170,7 @@ class home extends BaseController
                $whereLogo = array('id_logo' => 1); // Change '1' to dynamic if needed
                $data['sa'] = $model->getWhere('logo', $whereLogo);
            
-               // Fetch user data for the current session user
+               $model->logActivity($user_id, 'Login', 'User Has Log in.');
                $whereUser = array('id_user' => $user_id);
                $data['user'] = $model->getWhere('user', $whereUser);
            
@@ -276,8 +280,8 @@ public function game1()
     $data['user'] = $model->getWhere('user', $whereUser);
 
     // Fetch all game data
-    $data['game'] = $model->tampil('game');
-
+    $data['game'] = $model->Join('game', 'genre','game.genre = genre.id_genre');
+    $data['genre'] = $model->tampil('genre');
     // Load views with the data
     echo view('header', $data);
     echo view('menu', $data);
@@ -299,7 +303,7 @@ public function selesai($id){
     
         // Call the edit function from the model
         $model->logActivity($user_id, 'Game', 'User Has Finish Game.');
-        $model->edit('game',$isi, $where);
+        $model->hapus('game', $where);
     return redirect()->to('game1');
 
 }
@@ -328,8 +332,11 @@ public function tambah()
     $whereUser = array('id_user' => $user_id);
     $data['user'] = $model->getWhere('user', $whereUser);
 
-    // Fetch all game data
+    $data['sa'] = $model->join('game',
+    'genre',
+    'game.genre = genre.id_genre', []);
     $data['game'] = $model->tampil('game');
+    $data['genre'] = $model->tampil('genre');
 
     // Load views with the data
     echo view('header', $data);
@@ -343,11 +350,14 @@ public function aksi_tambah()
                $model = new M_lelang();
                $user_id = session()->get('id_user');
                $a = $this->request->getPost('nama');
+               $genre = $this->request->getPost('genre');
                $b = $this->request->getPost('Des');
+               $Plart = $this->request->getPost('Plart');
                $c = $this->request->getPost('date');
                $icon2= $this->request->getFile('image2');
                $dash1 = $this->request->getFile('image1');
                $icon3 = $this->request->getFile('image3');
+               $icon5 = $this->request->getFile('image4');
                $icon4 = $this->request->getFile('trailer');
                $logo = $this->request->getFile('logo');
 
@@ -360,10 +370,13 @@ public function aksi_tambah()
                log_message('debug', 'image1: ' . ($dash1 ? $dash1->getName() : 'None'));
                log_message('debug', 'image2: ' . ($icon2 ? $icon2->getName() : 'None'));
                log_message('debug', 'image3: ' . ($icon3 ? $icon3->getName() : 'None'));
+               log_message('debug', 'image4: ' . ($icon5 ? $icon5->getName() : 'None'));
                log_message('debug', 'trailer: ' . ($icon4 ? $icon4->getName() : 'None'));
 
                $data = ['game' => $a,
+                        'genre' => $genre,
                         'describsi' => $b,
+                        'plartform' => $Plart,
                         'tanggal_keluar' => $c,
                         'selesai' => "belum"
                     ];
@@ -393,6 +406,12 @@ public function aksi_tambah()
                     $icon3->move($uploadPath, $icon3->getName());
                 }
                 $data['foto_3'] = $icon3->getName();
+            }
+            if ($icon5 && $icon5->isValid() && !$icon5->hasMoved()) {
+                if (!file_exists($uploadPath . $icon5->getName())) {
+                    $icon5->move($uploadPath, $icon5->getName());
+                }
+                $data['foto_4'] = $icon5->getName();
             }
             if ($icon4 && $icon4->isValid() && !$icon4->hasMoved()) {
                 if (!file_exists($uploadPath . $icon4->getName())) {

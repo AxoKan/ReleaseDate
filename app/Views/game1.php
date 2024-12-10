@@ -27,9 +27,11 @@
                 <thead>
                   <tr style="font-weight: bold; color: black; font-size: larger;">
                     <td align="center" scope="col">No</td>
+                    <td align="center" scope="col">kategory</td>
                     <td align="center" scope="col">game</td>
                     <td align="center" scope="col">Release Date</td>
                     <td align="center" scope="col">Description</td>
+                    <td align="center" scope="col">Plartform</td>
                     <td align="center" scope="col">Logo</td>
                     <td align="center" scope="col">aksi</td>
                   </tr> 
@@ -42,9 +44,11 @@
                 ?>
                   <tr>
                     <td align="center" scope="col"><?= $no++ ?></td>
+                    <td align="center" scope="col"><?= $key->genrenama ?></td>
                     <td align="center" scope="col"><?= $key->game ?></td>
                     <td align="center" scope="col"><?= $key->tanggal_keluar ?></td>
                     <td align="center" scope="col"><?= $key->describsi ?></td>
+                    <td align="center" scope="col"><?= $key->plartform ?></td>
                     
                     <td align="center" >
          <img src="<?php echo base_url('assets/img/custom/' . $key->logo)?>"width="100px">
@@ -125,7 +129,17 @@
     border-color: #0056b3;
   }
 </style>
-
+<script>
+  // Search functionality
+  document.getElementById('search').addEventListener('input', function() {
+    const searchValue = this.value.toLowerCase();
+    const rows = document.querySelectorAll('#mitraTable tbody tr');
+    rows.forEach(row => {
+      const rowData = row.textContent.toLowerCase();
+      row.style.display = rowData.includes(searchValue) ? '' : 'none';
+    });
+  });
+</script>
 
 
 <!-- Include Bootstrap JavaScript (required for modal functionality) -->

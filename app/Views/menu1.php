@@ -118,8 +118,8 @@
   <div class="right-section">
     <ul>
       <li class="menu-item">
-        <a href="<?= base_url('home/login') ?>">
-          <i class="menu-icon tf-icons bx bx-log-in-circle"></i> Login
+        <a href="<?= base_url('home/logout') ?>">
+          <i class="menu-icon tf-icons bx bx-log-in-circle"></i> LogOut
         </a>
       </li>
     </ul>
@@ -144,7 +144,7 @@
       dropdown.innerHTML = filteredGames
         .map(
           (game) =>
-            `<a href="/game/${game.game_id}">${game.game}</a>`
+            `<a href="/home/game/${game.game_id}">${game.game}</a>`
         )
         .join('');
 
